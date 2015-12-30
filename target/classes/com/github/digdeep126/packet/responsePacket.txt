@@ -1,0 +1,15 @@
+http://dev.mysql.com/doc/internals/en/generic-response-packets.html
+
+14.1.3 Generic Response Packets
+
+14.1.3.1 OK_Packet
+14.1.3.2 ERR_Packet
+14.1.3.3 EOF_Packet
+14.1.3.4 Status Flags
+
+For most commands the client sends to the server, 
+the server returns one of these packets in response:
+
+Section 14.1.3.1, “OK_Packet”
+Section 14.1.3.2, “ERR_Packet”
+Section 14.1.3.3, “EOF_Packet”
