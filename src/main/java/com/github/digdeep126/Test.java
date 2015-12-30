@@ -10,14 +10,11 @@ import javax.xml.bind.DatatypeConverter;
 
 import com.alibaba.fastjson.JSON;
 import com.github.digdeep126.packet.AuthPacket;
-import com.github.digdeep126.packet.CommandPacket;
 import com.github.digdeep126.packet.ERRPacket;
-import com.github.digdeep126.packet.HandShakeResponse;
 import com.github.digdeep126.packet.OKPacket;
 import com.github.digdeep126.packet.ServerHandShake;
 import com.github.digdeep126.packet.StatusFlags;
 import com.github.digdeep126.util.ByteUtil;
-import com.github.digdeep126.util.ByteWriteUtil;
 
 @SuppressWarnings("restriction")
 public class Test {
