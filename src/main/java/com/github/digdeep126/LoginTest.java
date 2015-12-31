@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -13,21 +14,24 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.github.digdeep126.packet.AuthPacket;
+import com.github.digdeep126.packet.CommandPacket;
 import com.github.digdeep126.packet.ERRPacket;
 import com.github.digdeep126.packet.OKPacket;
 import com.github.digdeep126.packet.ServerHandShake;
 import com.github.digdeep126.packet.StatusFlags;
 import com.github.digdeep126.util.ByteUtil;
+import com.github.digdeep126.util.ByteWriteUtil; 
 
 @SuppressWarnings("restriction")
 public class LoginTest {
 	private static Logger logger = LoggerFactory.getLogger(LoginTest.class);
 	public static void main(String[] args){
+		// MySQL地址
 		InetSocketAddress serverAddr = new InetSocketAddress("192.168.1.3", 3306);
 		logger.info("login begin...");
         try (Socket client = new Socket();){
         	client.connect(serverAddr, 1000*10);
-        	InputStream in = client.getInputStream();
+        	InputStream in = client.getInputStream(); 
 
         	int readLen = 0;
             byte[] buff = new byte[1024*16];
@@ -35,7 +39,6 @@ public class LoginTest {
             System.out.println("readLen1:" + readLen);
             
     		ServerHandShake serverHandShake = new ServerHandShake(buff);
-//    		System.out.println(JSON.toJSON(serverHandShake));
     		
     		AuthPacket authPacket = new AuthPacket(serverHandShake);
     		byte[] authPackageBytes = authPacket.getBytes();
@@ -46,7 +49,7 @@ public class LoginTest {
     		readLen = 0;
     		buff = new byte[1024*16];
     		readLen = in.read(buff);
-    		System.out.println("readLen2:" + readLen);
+    		System.out.println("readLen2:" + readLen); 
           
 			int resultStatus = ByteUtil.readUB1(buff, 4);
 			System.out.println("resultStatus:" + resultStatus);
@@ -62,14 +65,31 @@ public class LoginTest {
 					System.out.println("login success, mysql server status: " + okPacket.statusFlags);
 				System.out.println("***************************\n");
 				
-				// 01 00 00 00 01
-				byte[] quitPacket = new byte[5];//[0x01, 0x00, 0x00, 0x00, 0x01];
-				quitPacket[0] = 0x01;
-				quitPacket[1] = 0x00;
-				quitPacket[2] = 0x00;
-				quitPacket[3] = 0x00;
-				quitPacket[4] = 0x01;
-				os.write(quitPacket, 0, quitPacket.length);
+				CommandPacket packet = new CommandPacket();
+	    		packet.packetSequenceId = 0;
+	    		packet.commandType = 0x03;
+	    		packet.arg = "select @@version_comment limit 1".getBytes("utf8");
+	    		
+	    		byte[] buffer = new byte[37];
+	    		int size = 1 + packet.arg.length;
+	    		System.out.println("size:::::::::" + size);	// 9
+	    		int offset = 0;
+	    		offset += 3;
+	    		ByteWriteUtil.writeUB1(buffer, offset, packet.packetSequenceId);
+	    		offset += 1;
+	    		ByteWriteUtil.writeUB1(buffer, offset, packet.commandType);	// command
+	    		offset += 1;
+	    		System.arraycopy(packet.arg, 0, buffer, offset, packet.arg.length);
+	    		offset += packet.arg.length;
+	    		
+	    		ByteWriteUtil.writeUB3(buffer, 0, offset-4);	// 头部的开始3字节表示payload长度：头部4字节不计算在内
+	    		
+	    		os.write(buffer, 0, buffer.length);
+	    		os.flush();
+	    		System.out.println("os.flush()");
+	            readLen = in.read(buff);		// 此处被阻塞了，无法读取到mysqld执行的结果
+	            System.out.println("readLen3:" + readLen);
+						
 			}else if(resultStatus == ERRPacket.ERROR_STATUS){ // 0xff
 				ERRPacket errPacket = new ERRPacket(buff);
 				System.out.println("errPacket:" + JSON.toJSON(errPacket));

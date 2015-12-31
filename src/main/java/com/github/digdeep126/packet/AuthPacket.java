@@ -98,19 +98,19 @@ public class AuthPacket extends Packet{
 	public AuthPacket(byte[] data){
     	this.clientCapabilitityFlags = initClientFlags();
     	this.maxPacketSize = MAX_PACKET_SIZE;
-    	this.charsetIndex = 33;
+    	this.charsetIndex = 46;
     	this.reserved = FILLER;
     	this.username = "root";
     	ServerHandShake handshake = new ServerHandShake(data);
     	try {
-			this.password = passwd("digdeep", handshake);
+			this.password = passwd("lexin1123581", handshake);
 			@SuppressWarnings("restriction")
 			String hex = DatatypeConverter.printHexBinary(password);
 //			System.out.println("password: " + hex);	//5FAE48FFE2B89781624A09FC7E06B238D7FCD358
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} 
-    	this.database = "mysql";
+//    	this.database = "mysql";
     	this.packetSequenceId = handshake.packetSequenceId + 1;
     	
     	System.out.println("******HandShakeResponse.packetSequenceId:" + packetSequenceId);
@@ -123,7 +123,7 @@ public class AuthPacket extends Packet{
     	this.reserved = FILLER;
     	this.username = "root";
     	try {
-			this.password = passwd("digdeep", handshake);
+			this.password = passwd("lexin112358", handshake);
 			@SuppressWarnings("restriction")
 			String hex = DatatypeConverter.printHexBinary(password);
 //			System.out.println("password: " + hex);	//5FAE48FFE2B89781624A09FC7E06B238D7FCD358

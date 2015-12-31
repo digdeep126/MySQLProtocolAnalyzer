@@ -85,7 +85,7 @@ import java.nio.ByteBuffer;
  * @author mycat
  */
 public class CommandPacket extends Packet{
-	public byte command;
+	public byte commandType;
 	public byte[] arg;
 
 	public CommandPacket() {
@@ -95,7 +95,7 @@ public class CommandPacket extends Packet{
 		MySQLMessage mm = new MySQLMessage(data);
 		packetLen = mm.readUB3();
 		packetSequenceId = mm.read();
-		command = mm.read();
+		commandType = mm.read();
 		arg = mm.readBytes();
 	}
 
