@@ -95,13 +95,6 @@ public enum CapabilityFlags {
 //	Therefore, the EOF packet in the Text Resultset is replaced with an OK packet. 
 //	EOF packets are deprecated as of MySQL 5.7.5.
 	
-	public static void main(String[] args){
-    	for(CapabilityFlags e : CapabilityFlags.values()){
-            System.out.println(e.name());
-            System.out.println(e.getCode());
-        }
-	}
-
 	/** 枚举码 */
     private int code;
     /** 枚举描述 */
@@ -111,9 +104,11 @@ public enum CapabilityFlags {
         this.code = code;
         this.desc = desc;
     }
+    
     public int getCode() {
         return code;
     }
+    
     public String getDesc() {
         return desc;
     }
@@ -134,4 +129,11 @@ public enum CapabilityFlags {
         }
         return null;
     }
+    
+	public static void main(String[] args){
+    	for(CapabilityFlags e : CapabilityFlags.values()){
+            System.out.println(e.name());
+            System.out.println(e.getCode());
+        }
+	}
 }
