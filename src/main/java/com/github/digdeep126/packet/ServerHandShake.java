@@ -72,8 +72,22 @@ public class ServerHandShake extends Packet{
     	charset = mm.read();
     	statusFlags = mm.readUB2();
     	capbilityUpper = mm.readUB2();
-    	capbility = capbilityUpper << 16 + capbilityLower;
+    	capbility = capbilityUpper << 16 | capbilityLower;
     	
+    	System.out.printf("lower:0x%x\n", capbilityLower);	// 0xf7ff
+    	System.out.printf("upper:0x%x\n", capbilityUpper);	// 0x807f
+    	System.out.printf("capbility:0x%x\n", capbility);	// 0x807ff7ff
+    	
+    	
+    	for(CapabilityFlags e : CapabilityFlags.values()){
+    		if((capbility & e.getCode()) > 0){
+    			System.out.println(e.name());
+    		}
+        }
+    	
+//    	lower:0xf7ff
+//    	upper:0x807f
+//    	capbility:0x403f8000
 //		  if capabilities & CLIENT_PLUGIN_AUTH {
 //		  1              length of auth-plugin-data
 //		    } else {
