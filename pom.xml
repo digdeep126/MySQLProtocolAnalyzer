@@ -40,10 +40,9 @@
         </dependency>
 
 	</dependencies>
-	
+<!-- 	
 	<build>
 	<plugins>
-  		<!-- plugin for compile -->
   		<plugin>
 			<artifactId>maven-compiler-plugin</artifactId>
 			<version>2.0.2</version>
@@ -53,18 +52,15 @@
 			</configuration>
 		</plugin>
 		
-		<!-- plugin for package -->
 		<plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
             <version>2.4.1</version>
             <configuration>
-                <!-- get all project dependencies -->
                 <descriptorRefs>
                     <descriptorRef>jar-with-dependencies</descriptorRef>
                 </descriptorRefs>
                 
-                <!-- MainClass in mainfest make a executable jar -->
                 <archive>
                   <manifest>
                     <mainClass>com.github.digdeep126.LoginTest</mainClass>
@@ -73,15 +69,14 @@
             </configuration>
             <executions>
               <execution>
-                <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                <phase>package</phase> <!-- bind to the packaging phase -->
+                <id>make-assembly</id> 
+                <phase>package</phase> 
                 <goals>
                     <goal>single</goal>
                 </goals>
               </execution>
             </executions>
         </plugin>
-		<!-- plugin for exec -->
         <plugin>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>exec-maven-plugin</artifactId>
@@ -100,4 +95,5 @@
      </plugins>
   	
   </build>
+   -->
 </project>

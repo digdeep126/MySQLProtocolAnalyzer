@@ -39,6 +39,7 @@ public class LoginTest {
             System.out.println("readLen1:" + readLen);
             
     		ServerHandShake serverHandShake = new ServerHandShake(buff);
+    		System.out.println(JSON.toJSONString(serverHandShake));
     		
     		AuthPacket authPacket = new AuthPacket(serverHandShake);
     		byte[] authPackageBytes = authPacket.getBytes();
@@ -67,10 +68,11 @@ public class LoginTest {
 				
 				CommandPacket packet = new CommandPacket();
 	    		packet.packetSequenceId = 0;
+
 	    		packet.commandType = 0x03;
-	    		packet.arg = "select @@version_comment limit 1".getBytes("utf8");
+	    		packet.arg = "select 1".getBytes("utf8");	// select @@version_comment limit 1
 	    		
-	    		byte[] buffer = new byte[37];
+	    		byte[] buffer = new byte[137];
 	    		int size = 1 + packet.arg.length;
 	    		System.out.println("size:::::::::" + size);	// 9
 	    		int offset = 0;
@@ -84,22 +86,36 @@ public class LoginTest {
 	    		
 	    		ByteWriteUtil.writeUB3(buffer, 0, offset-4);	// 头部的开始3字节表示payload长度：头部4字节不计算在内
 	    		
-	    		os.write(buffer, 0, buffer.length);
+	    		System.out.println("offset:" + offset);
+	    		os.write(buffer, 0, offset);
 	    		os.flush();
 	    		System.out.println("os.flush()");
+	    		
 	            readLen = in.read(buff);		// 此处被阻塞了，无法读取到mysqld执行的结果
+	            
 	            System.out.println("readLen3:" + readLen);
-						
-			}else if(resultStatus == ERRPacket.ERROR_STATUS){ // 0xff
-				ERRPacket errPacket = new ERRPacket(buff);
-				System.out.println("errPacket:" + JSON.toJSON(errPacket));
-				System.out.println("\n***************************");
-				System.out.println("login failed: " + errPacket.errorMessage);
-				System.out.println("***************************\n");
-				logger.debug(errPacket.errorMessage);
+	            resultStatus = ByteUtil.readUB1(buff, 4);
+				System.out.println("resultStatus2:" + resultStatus);
+				
+				if(resultStatus == ERRPacket.ERROR_STATUS){ // 执行失败
+					 errorHandle(buff);
+				}else{
+					okPacket = new OKPacket(buff);
+					System.out.println("okPacket:" + JSON.toJSON(okPacket));
+				}
+			}else if(resultStatus == ERRPacket.ERROR_STATUS){ // 登录失败
+				errorHandle(buff);
 			}
 		} catch (IOException e) {
 			logger.warn(e.getMessage());
 		}
+	}
+	
+	private static void errorHandle(byte[] buff){
+		ERRPacket errPacket = new ERRPacket(buff);
+		System.out.println("errPacket:" + JSON.toJSON(errPacket));
+		System.out.println("\n***************************");
+		System.out.println("error: " + errPacket.errorMessage);
+		System.out.println("***************************\n");
 	}
 }

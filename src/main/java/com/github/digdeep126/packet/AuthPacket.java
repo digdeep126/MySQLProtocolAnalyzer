@@ -96,14 +96,14 @@ public class AuthPacket extends Packet{
 	public String database;
 	
 	public AuthPacket(byte[] data){
-    	this.clientCapabilitityFlags = initClientFlags();
+    	this.clientCapabilitityFlags = initClientFlags2();
     	this.maxPacketSize = MAX_PACKET_SIZE;
     	this.charsetIndex = 46;
     	this.reserved = FILLER;
     	this.username = "root";
     	ServerHandShake handshake = new ServerHandShake(data);
     	try {
-			this.password = passwd("lexin1123581", handshake);
+			this.password = passwd("lexin112358", handshake);
 			@SuppressWarnings("restriction")
 			String hex = DatatypeConverter.printHexBinary(password);
 //			System.out.println("password: " + hex);	//5FAE48FFE2B89781624A09FC7E06B238D7FCD358
@@ -117,9 +117,18 @@ public class AuthPacket extends Packet{
 	}
 	
 	public AuthPacket(ServerHandShake handshake){
-    	this.clientCapabilitityFlags = initClientFlags();
+    	this.clientCapabilitityFlags = initClientFlags2();
+    	this.clientCapabilitityFlags &= handshake.capbility;
+    	
+    	for(CapabilityFlags e : CapabilityFlags.values()){
+    		if((clientCapabilitityFlags & e.getCode()) > 0){
+    			System.out.println(e.name());
+    		}
+        }
+    	
     	this.maxPacketSize = MAX_PACKET_SIZE;
-    	this.charsetIndex = 33;
+//    	this.charsetIndex = 33;
+    	this.charsetIndex = handshake.charset;
     	this.reserved = FILLER;
     	this.username = "root";
     	try {
@@ -237,7 +246,7 @@ public class AuthPacket extends Packet{
 		flag |= Capabilities.CLIENT_LOCAL_FILES;
 		flag |= Capabilities.CLIENT_IGNORE_SPACE;
 		flag |= Capabilities.CLIENT_PROTOCOL_41;
-		flag |= Capabilities.CLIENT_INTERACTIVE;
+//		flag |= Capabilities.CLIENT_INTERACTIVE;
 		// flag |= Capabilities.CLIENT_SSL;
 		flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
 		flag |= Capabilities.CLIENT_TRANSACTIONS;
@@ -246,6 +255,47 @@ public class AuthPacket extends Packet{
 		// client extension
 		flag |= Capabilities.CLIENT_MULTI_STATEMENTS;
 		flag |= Capabilities.CLIENT_MULTI_RESULTS;
+		return flag;
+	}
+	
+	public static long initClientFlags2() {
+		int flag = 0;
+		flag |= Capabilities.CLIENT_PROTOCOL_41;
+		flag |= Capabilities.CLIENT_SECURE_CONNECTION;
+//		flag |= Capabilities.CLIENT_LONG_PASSWORD;
+//		flag |= Capabilities.CLIENT_TRANSACTIONS;
+//		flag |= Capabilities.CLIENT_LONG_FLAG;
+//		flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
+//		 CLIENT_PROTOCOL_41 
+//         CLIENT_SECURE_CONNECTION 
+//	 CLIENT_LONG_PASSWORD  
+//         CLIENT_TRANSACTIONS 
+//         CLIENT_LONG_FLAG
+//         CLIENT_CONNECT_WITH_DB
+//		flag |= Capabilities.CLIENT_LONG_PASSWORD;
+//		flag |= Capabilities.CLIENT_FOUND_ROWS;
+//		flag |= Capabilities.CLIENT_LONG_FLAG;
+//		flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
+//		// flag |= Capabilities.CLIENT_NO_SCHEMA;
+//		boolean usingCompress = false;
+////		MycatServer.getInstance().getConfig()
+////								.getSystem().getUseCompression() == 1;
+//		if (usingCompress) {
+//			flag |= Capabilities.CLIENT_COMPRESS;
+//		}
+//		flag |= Capabilities.CLIENT_ODBC;
+//		flag |= Capabilities.CLIENT_LOCAL_FILES;
+//		flag |= Capabilities.CLIENT_IGNORE_SPACE;
+//		flag |= Capabilities.CLIENT_PROTOCOL_41;
+////		flag |= Capabilities.CLIENT_INTERACTIVE;
+//		// flag |= Capabilities.CLIENT_SSL;
+//		flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
+//		flag |= Capabilities.CLIENT_TRANSACTIONS;
+//		// flag |= Capabilities.CLIENT_RESERVED;
+//		flag |= Capabilities.CLIENT_SECURE_CONNECTION;
+//		// client extension
+//		flag |= Capabilities.CLIENT_MULTI_STATEMENTS;
+//		flag |= Capabilities.CLIENT_MULTI_RESULTS;
 		return flag;
 	}
 }

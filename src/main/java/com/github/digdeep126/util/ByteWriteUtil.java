@@ -37,22 +37,22 @@ public class ByteWriteUtil {
 
     public static byte[] writeUB2(byte[] buffer, int offset, int i) {
 		buffer[offset++] = (byte)(i & 0xff);		// 取低8位
-		buffer[offset++] = (byte)(i >>> 8 & 0xff);	// 取高8位
+		buffer[offset++] = (byte)((i >>> 8) & 0xff);	// 取高8位
 		return buffer;
     }
     
     public static byte[] writeUB3(byte[] buffer, int offset, int i) {
 		buffer[offset++] = (byte)(i & 0xff);
-		buffer[offset++] = (byte)(i >>> 8 & 0xff);
-		buffer[offset++] = (byte)(i >>> 16 & 0xff);
+		buffer[offset++] = (byte)((i >>> 8) & 0xff);
+		buffer[offset++] = (byte)((i >>> 16) & 0xff);
 		return buffer;
     }
     
     public static byte[] writeUB4(byte[] buffer, int offset, long i) {
 		buffer[offset++] = (byte)(i & 0xff);
-		buffer[offset++] = (byte)(i >>> 8 & 0xff);
-		buffer[offset++] = (byte)(i >>> 16 & 0xff);
-		buffer[offset++] = (byte)(i >>> 24 & 0xff);
+		buffer[offset++] = (byte)((i >>> 8) & 0xff);
+		buffer[offset++] = (byte)((i >>> 16) & 0xff);
+		buffer[offset++] = (byte)((i >>> 24) & 0xff);
 		return buffer;
     }
     

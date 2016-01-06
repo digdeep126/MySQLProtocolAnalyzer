@@ -51,7 +51,7 @@ public class ServerHandShake extends Packet{
 	public byte[] reserved;			// 10字节：		[00]
 	public byte[] authPluginPart2;	// 12字节：	    0x7837463A322C246C76302771
 	public String authPluginName;	// NUL结尾的字符	mysql_native_password
-	public int capbility;			// capbilityUpper << 16 + capbilityLower
+	public int capbility;			// capbilityUpper << 16 | capbilityLower
 	
     public ServerHandShake(byte[] bin) {
         MySQLMessage mm = new MySQLMessage(bin);
