@@ -24,8 +24,12 @@
 package com.github.digdeep126.packet;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.xml.bind.DatatypeConverter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.digdeep126.util.ByteWriteUtil;
 import com.github.digdeep126.util.SecurityUtil;
@@ -83,8 +87,9 @@ import com.github.digdeep126.util.SecurityUtil;
  * @author digdeep@126.com
  *
  */
-@SuppressWarnings("restriction")
 public class AuthPacket extends Packet{
+	Logger logger = LoggerFactory.getLogger(AuthPacket.class);
+	
 	private static final byte[] FILLER = new byte[23];	//string[23]     reserved (all [0])
 	
 	public long clientCapabilitityFlags;
@@ -96,7 +101,7 @@ public class AuthPacket extends Packet{
 	public String database;
 	
 	public AuthPacket(byte[] data){
-    	this.clientCapabilitityFlags = initClientFlags2();
+    	this.clientCapabilitityFlags = initClientFlags(false);
     	this.maxPacketSize = MAX_PACKET_SIZE;
     	this.charsetIndex = 46;
     	this.reserved = FILLER;
@@ -104,37 +109,34 @@ public class AuthPacket extends Packet{
     	ServerHandShake handshake = new ServerHandShake(data);
     	try {
 			this.password = passwd("lexin112358", handshake);
-			@SuppressWarnings("restriction")
-			String hex = DatatypeConverter.printHexBinary(password);
-//			System.out.println("password: " + hex);	//5FAE48FFE2B89781624A09FC7E06B238D7FCD358
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} 
-//    	this.database = "mysql";
+    	this.database = "mysql";
     	this.packetSequenceId = handshake.packetSequenceId + 1;
     	
-    	System.out.println("******HandShakeResponse.packetSequenceId:" + packetSequenceId);
+    	logger.debug("packetSequenceId:" + packetSequenceId);
 	}
 	
 	public AuthPacket(ServerHandShake handshake){
-    	this.clientCapabilitityFlags = initClientFlags2();
+    	this.clientCapabilitityFlags = initClientFlags(false);
     	this.clientCapabilitityFlags &= handshake.capbility;
     	
-    	for(CapabilityFlags e : CapabilityFlags.values()){
-    		if((clientCapabilitityFlags & e.getCode()) > 0){
-    			System.out.println(e.name());
-    		}
-        }
+//    	for(CapabilityFlags e : CapabilityFlags.values()){
+//    		if((clientCapabilitityFlags & e.getCode()) > 0){
+//    			System.out.println(e.name());
+//    		}
+//        }
     	
     	this.maxPacketSize = MAX_PACKET_SIZE;
-//    	this.charsetIndex = 33;
+    	this.charsetIndex = 33;	// utf8 generic
     	this.charsetIndex = handshake.charset;
     	this.reserved = FILLER;
     	this.username = "root";
     	try {
 			this.password = passwd("lexin112358", handshake);
-			@SuppressWarnings("restriction")
-			String hex = DatatypeConverter.printHexBinary(password);
+//			@SuppressWarnings("restriction")
+//			String hex = DatatypeConverter.printHexBinary(password);
 //			System.out.println("password: " + hex);	//5FAE48FFE2B89781624A09FC7E06B238D7FCD358
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -142,7 +144,7 @@ public class AuthPacket extends Packet{
     	this.database = "mysql";
     	this.packetSequenceId = handshake.packetSequenceId + 1;
     	
-    	System.out.println("******HandShakeResponse.packetSequenceId:" + packetSequenceId);
+    	logger.debug("packetSequenceId:" + packetSequenceId);
 	}
 	
 	public byte[] getBytes() {
@@ -206,8 +208,7 @@ public class AuthPacket extends Packet{
 		packetLen = offset-4;
 		ByteWriteUtil.writeUB3(buffer, 0, packetLen);	// 头部的开始3字节表示payload长度：头部4字节不计算在内
 		
-//		System.out.println("packageLen: " + packetLen);	// 64
-		return buffer;
+		return Arrays.copyOfRange(buffer, 0, offset);
 	}
 	
 	private static byte[] passwd(String pass, ServerHandShake hs) throws NoSuchAlgorithmException {
@@ -229,16 +230,13 @@ public class AuthPacket extends Packet{
      * @see http://dev.mysql.com/doc/internals/en/capability-negotiation.html
 	 * @return
 	 */
-	public static long initClientFlags() {
+	public static long initClientFlags(boolean usingCompress) {
 		int flag = 0;
 		flag |= Capabilities.CLIENT_LONG_PASSWORD;
 		flag |= Capabilities.CLIENT_FOUND_ROWS;
 		flag |= Capabilities.CLIENT_LONG_FLAG;
 		flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
 		// flag |= Capabilities.CLIENT_NO_SCHEMA;
-		boolean usingCompress = false;
-//		MycatServer.getInstance().getConfig()
-//								.getSystem().getUseCompression() == 1;
 		if (usingCompress) {
 			flag |= Capabilities.CLIENT_COMPRESS;
 		}
@@ -246,7 +244,7 @@ public class AuthPacket extends Packet{
 		flag |= Capabilities.CLIENT_LOCAL_FILES;
 		flag |= Capabilities.CLIENT_IGNORE_SPACE;
 		flag |= Capabilities.CLIENT_PROTOCOL_41;
-//		flag |= Capabilities.CLIENT_INTERACTIVE;
+		flag |= Capabilities.CLIENT_INTERACTIVE;
 		// flag |= Capabilities.CLIENT_SSL;
 		flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
 		flag |= Capabilities.CLIENT_TRANSACTIONS;
@@ -258,44 +256,4 @@ public class AuthPacket extends Packet{
 		return flag;
 	}
 	
-	public static long initClientFlags2() {
-		int flag = 0;
-		flag |= Capabilities.CLIENT_PROTOCOL_41;
-		flag |= Capabilities.CLIENT_SECURE_CONNECTION;
-//		flag |= Capabilities.CLIENT_LONG_PASSWORD;
-//		flag |= Capabilities.CLIENT_TRANSACTIONS;
-//		flag |= Capabilities.CLIENT_LONG_FLAG;
-//		flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
-//		 CLIENT_PROTOCOL_41 
-//         CLIENT_SECURE_CONNECTION 
-//	 CLIENT_LONG_PASSWORD  
-//         CLIENT_TRANSACTIONS 
-//         CLIENT_LONG_FLAG
-//         CLIENT_CONNECT_WITH_DB
-//		flag |= Capabilities.CLIENT_LONG_PASSWORD;
-//		flag |= Capabilities.CLIENT_FOUND_ROWS;
-//		flag |= Capabilities.CLIENT_LONG_FLAG;
-//		flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
-//		// flag |= Capabilities.CLIENT_NO_SCHEMA;
-//		boolean usingCompress = false;
-////		MycatServer.getInstance().getConfig()
-////								.getSystem().getUseCompression() == 1;
-//		if (usingCompress) {
-//			flag |= Capabilities.CLIENT_COMPRESS;
-//		}
-//		flag |= Capabilities.CLIENT_ODBC;
-//		flag |= Capabilities.CLIENT_LOCAL_FILES;
-//		flag |= Capabilities.CLIENT_IGNORE_SPACE;
-//		flag |= Capabilities.CLIENT_PROTOCOL_41;
-////		flag |= Capabilities.CLIENT_INTERACTIVE;
-//		// flag |= Capabilities.CLIENT_SSL;
-//		flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
-//		flag |= Capabilities.CLIENT_TRANSACTIONS;
-//		// flag |= Capabilities.CLIENT_RESERVED;
-//		flag |= Capabilities.CLIENT_SECURE_CONNECTION;
-//		// client extension
-//		flag |= Capabilities.CLIENT_MULTI_STATEMENTS;
-//		flag |= Capabilities.CLIENT_MULTI_RESULTS;
-		return flag;
-	}
 }

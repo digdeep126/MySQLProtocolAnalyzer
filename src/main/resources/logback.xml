@@ -3,12 +3,12 @@
   
     <!-- ch.qos.logback.core.ConsoleAppender 控制台输出 -->  
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">  
-        <encoder>  
-            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>  
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss.SSS} [%-5level] [%thread]%logger{36}:%L - %msg%n</pattern>  
         </encoder>  
     </appender>  
   
-    <!-- ch.qos.logback.core.rolling.RollingFileAppender 文件日志输出 -->  
+    <!-- ch.qos.logback.core.rolling.RollingFileAppender 文件日志输出  
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">  
         <Encoding>UTF-8</Encoding>  
         <File>D://MySQLProtocolAnalyzer.log</File>  
@@ -23,13 +23,14 @@
             <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>  
         </layout>  
     </appender>  
+    --> 
     
     <!-- 日志级别 -->  
     <root>  
-        <level value="error" />  
+        <level value="info" />  
         <level value="debug" /> 
         <appender-ref ref="console" />  
-        <appender-ref ref="file" />   
+        <!-- <appender-ref ref="file" />   -->
     </root>  
   
   	<!-- 精确设置每个包下面的日志 -->

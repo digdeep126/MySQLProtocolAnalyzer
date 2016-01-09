@@ -1,6 +1,7 @@
 package com.github.digdeep126.packet;
 
-import javax.xml.bind.DatatypeConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Initial Handshake Packet - protocol version 10
@@ -37,6 +38,8 @@ import javax.xml.bind.DatatypeConverter;
  * @see http://dev.mysql.com/doc/internals/en/connection-phase-packets.html
  */
 public class ServerHandShake extends Packet{
+	private static Logger logger = LoggerFactory.getLogger(ServerHandShake.class);
+	
 	//=========payload begin:============ 数据包中的数据
 	public int	protocolVersion;	// 1字节：		mysql协议版本：v10, v9
 	public String serverVersion;	// NUL结尾的字符串：5.6.27-log
@@ -78,12 +81,11 @@ public class ServerHandShake extends Packet{
     	System.out.printf("upper:0x%x\n", capbilityUpper);	// 0x807f
     	System.out.printf("capbility:0x%x\n", capbility);	// 0x807ff7ff
     	
-    	
-    	for(CapabilityFlags e : CapabilityFlags.values()){
-    		if((capbility & e.getCode()) > 0){
-    			System.out.println(e.name());
-    		}
-        }
+//    	for(CapabilityFlags e : CapabilityFlags.values()){
+//    		if((capbility & e.getCode()) > 0){
+//    			System.out.println(e.name());
+//    		}
+//        }
     	
 //    	lower:0xf7ff
 //    	upper:0x807f
@@ -112,7 +114,7 @@ public class ServerHandShake extends Packet{
 		}
     	authPluginName = mm.readStringWithNull();
     	
-    	System.out.println("******ServerHandShake.packetSequenceId:" + packetSequenceId);
+    	logger.debug("packetSequenceId:" + packetSequenceId);
     }
     
 //{"charset":46,"packageSequenceId":0,"serverVersion":"5.6.27-log",
